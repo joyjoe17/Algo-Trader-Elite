@@ -1,7 +1,5 @@
-import eventlet
-eventlet.monkey_patch()
-
 import logging
+import os
 from flask import Flask
 from flask_cors import CORS
 from flask_socketio import SocketIO, emit
@@ -14,7 +12,7 @@ app = Flask(__name__)
 app.config.from_object("backend.config.Config")
 
 CORS(app, resources={r"/api/*": {"origins": "*"}})
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
 from backend.routes.broker import broker_bp
 from backend.routes.scanner import scanner_bp, scanner_service
@@ -83,4 +81,6 @@ def health():
 
 
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=8000, debug=False)
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", "8000"))
+    socketio.run(app, host=host, port=port, debug=False, allow_unsafe_werkzeug=True)
