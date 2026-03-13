@@ -1,1 +1,17 @@
+[Unit]
+Description=AlgoTrader Backend (Flask-SocketIO via Gunicorn)
+After=network.target
+
+[Service]
+Type=simple
+User=__APP_USER__
+Group=__APP_GROUP__
+WorkingDirectory=__APP_DIR__
+EnvironmentFile=__ENV_FILE__
+ExecStart=__APP_DIR__/.venv/bin/gunicorn --worker-class eventlet -w 1 -b 0.0.0.0:${PORT:-8000} backend.app:app
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
 
