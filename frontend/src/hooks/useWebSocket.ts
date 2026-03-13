@@ -21,6 +21,11 @@ export function useWebSocket() {
   useEffect(() => {
     const socket = io(window.location.origin, {
       path: '/socket.io',
+    const socketUrl = (import.meta.env.VITE_SOCKET_URL || window.location.origin).replace(/\/$/, '');
+    const socketPath = import.meta.env.VITE_SOCKET_PATH || '/socket.io';
+
+    const socket = io(socketUrl, {
+      path: socketPath,
       transports: ['polling', 'websocket'],
       reconnectionAttempts: 10,
       reconnectionDelay: 2000,
@@ -34,6 +39,7 @@ export function useWebSocket() {
     socket.on('disconnect', () => setState(s => ({ ...s, connected: false })));
     socket.on('connect_error', (err) => {
       console.warn('Socket connect error:', err.message);
+      console.warn(`Socket connect error [${socketUrl}${socketPath}]:`, err.message);
     });
 
     socket.on('positions_update', (data: { positions: Position[]; summary: TradeSummary }) => {
